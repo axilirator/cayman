@@ -1,11 +1,23 @@
 /*
- *	Copyright (C) 2014-2015 WMN aka Yanitskiy Vadim
- *	cayman 1.0.0 - simple option parser for Node.js
+ *	Copyright (C) 2014-2015 Яницкий Вадим
+ *	cayman 1.0.0 - Simple CLI for Node.js
  *	https://github.com/axilirator/cayman
  *
  *	Distributed under the MIT license.
  *	See https://github.com/axilirator/cayman/blob/master/LICENSE
+ *
+ *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *	SOFTWARE.
  */
+
+
+// Strict mode //
+ 'use strict';
 
 /**
  * Конструктор класса.
@@ -74,9 +86,7 @@ cayman.prototype.option = function( params ) {
 		'short_name'  : params.short_name || '',
 		'full_name'   : params.full_name,
 		'access_name' : params.access_name,
-		'description' : params.description,
-
-		'value'       : null
+		'description' : params.description
 	});
 
 	return this;
@@ -315,6 +325,9 @@ function parse_arguments( argv ) {
 					}
 				}
 
+				if ( current )
+					continue;
+
 				// Перебор глобальных параметров //
 				for ( var j = 0; j < this.options.length; j++ ) {
 					if ( this.options[ j ].full_name === name ) {
@@ -335,6 +348,9 @@ function parse_arguments( argv ) {
 						break;
 					}
 				}
+
+				if ( current )
+					continue;
 
 				// Перебор глобальных параметров //
 				for ( var j = 0; j < this.options.length; j++ ) {

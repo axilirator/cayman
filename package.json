@@ -1,0 +1,29 @@
+{
+  "name": "cayman",
+  "version": "1.0.0",
+  "description": "Simple CLI library",
+  "main": "cayman.js",
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axilirator/cayman.git"
+  },
+  "keywords": [
+    "cli",
+    "console",
+    "options",
+    "key",
+    "parser"
+  ],
+  "scripts": {
+    "test": "node ./test/test.js"
+  },
+  "author": "Яницкий Вадим",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axilirator/cayman/issues"
+  },
+  "homepage": "https://github.com/axilirator/cayman"
+}
