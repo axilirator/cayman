@@ -16,8 +16,10 @@ Cayman позволяет быстро и просто создавать инт
 ```js
 #!/usr/bin/env node
 
-var cli = require( './cayman.js' );
+var cli = require( 'cayman' );
 ```
+
+  Готово!
 
 ## Синтаксис
 
