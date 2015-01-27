@@ -138,9 +138,6 @@ cayman.prototype.header = function() {
  * @return this
  */
 cayman.prototype.help = function() {
-	// Вывод заголовка программы //
-	this.header();
-
 	// Вывод синтаксиса //
 	if ( this.info.usage ) {
 		console.log( '  Usage: ' + this.info.usage );
@@ -221,8 +218,6 @@ cayman.prototype.help = function() {
 					process.stdout.write( ' : ' + cmd_options[ j ].description + '\n' );
 				}
 			}
-
-			console.log();
 		}
 	}
 
@@ -237,7 +232,7 @@ cayman.prototype.help = function() {
 		full_difference    = 0;
 		short_difference   = 0;
 
-		console.log( '  Global options:' );
+		console.log( '\n  Global options:' );
 		
 		for ( var i = 0; i < global_options.length; i++ ) {
 			if ( global_options[ i ].short_name.length > max_short )
@@ -267,8 +262,6 @@ cayman.prototype.help = function() {
 
 			process.stdout.write( ' : ' + global_options[ i ].description + '\n' );
 		}
-
-		console.log();
 	}
 };
 
@@ -277,23 +270,25 @@ cayman.prototype.help = function() {
  * @param {object} argv Массив переданных при запуске параметров
  */
 cayman.prototype.parse = function( argv ) {
-	if ( argv.length === 2 ) {
-		this.help();
-		return;
-	}
-
 	// Заголовок программы //
 	this.header();
 
-	// Определение команды //
-	if ( this.commands[ argv[ 2 ] ] ) {
-		this.cmd  = this.commands[ argv[ 2 ] ];
-		this.argv = parse_arguments.call( this, argv );
-
-		if ( this.cmd.action )
-			this.cmd.action.call( this, this.argv );
+	if ( argv.length === 2 ) {
+		// Программа вызвана без аргументов //
+		this.help();
 	} else {
-		console.log( '  Command not found, see help.\n' );
+		// Определение команды //
+		if ( this.commands[ argv[ 2 ] ] ) {
+			this.cmd  = this.commands[ argv[ 2 ] ];
+			this.argv = parse_arguments.call( this, argv );
+
+			// Выполнение выбранной команды //
+			if ( this.argv && this.cmd.action ) {
+				this.cmd.action.call( this, this.argv );
+			}
+		} else {
+			console.log( '  Command not found, see help.' );
+		}
 	}
 };
 
@@ -304,9 +299,10 @@ cayman.prototype.parse = function( argv ) {
  * @return {object} 	 Результат парсинга
  */
 function parse_arguments( argv ) {
-	var current = false;
-	var parsed  = {};
-	var name    = null;
+	var parsed       = {};
+	var current      = false;
+	var name         = false;
+	var unrecognized = false;
 
 	for ( var i = 3, len = argv.length; i < len; i++ ) {
 		// Параметр или значение? //
@@ -325,16 +321,16 @@ function parse_arguments( argv ) {
 					}
 				}
 
-				if ( current )
-					continue;
-
-				// Перебор глобальных параметров //
-				for ( var j = 0; j < this.options.length; j++ ) {
-					if ( this.options[ j ].full_name === name ) {
-						parsed[ this.options[ j ].access_name ] = true;
-						current = this.options[ j ].access_name;
-						break;
-					}
+				// Если параметр не принадлежит выполняемой команде //
+				if ( !current ) {
+					// Перебор глобальных параметров //
+					for ( var j = 0; j < this.options.length; j++ ) {
+						if ( this.options[ j ].full_name === name ) {
+							parsed[ this.options[ j ].access_name ] = true;
+							current = this.options[ j ].access_name;
+							break;
+						}
+					}	
 				}
 			} else {
 				// short-name //
@@ -349,28 +345,36 @@ function parse_arguments( argv ) {
 					}
 				}
 
-				if ( current )
-					continue;
-
-				// Перебор глобальных параметров //
-				for ( var j = 0; j < this.options.length; j++ ) {
-					if ( this.options[ j ].short_name === name ) {
-						parsed[ this.options[ j ].access_name ] = true;
-						current = this.options[ j ].access_name;
-						break;
+				// Если параметр принадлежит выполняемой команде //
+				if ( !current ) {
+					// Перебор глобальных параметров //
+					for ( var j = 0; j < this.options.length; j++ ) {
+						if ( this.options[ j ].short_name === name ) {
+							parsed[ this.options[ j ].access_name ] = true;
+							current = this.options[ j ].access_name;
+							break;
+						}
 					}
 				}
+			}
+
+			// Если текущий параметр не найден нигде, предупреждаем пользователя //
+			if ( !current ) {
+				unrecognized = true;
+				console.warn( "  Unrecognized option '%s', see help.", name );
 			}
 		} else {
 			// Объявление значения параметра //
 			if ( current ) {
 				parsed[ current ] = argv[ i ];
+
+				// Сброс буфера имени текущего параметра //
 				current = false;
 			}
 		}
 	}
 
-	return parsed;
+	return unrecognized ? false : parsed;
 }
 
 module.exports = new cayman;
