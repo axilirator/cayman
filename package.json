@@ -1,7 +1,7 @@
 {
   "name": "cayman",
-  "version": "1.0.1",
-  "description": "Simple CLI library",
+  "version": "1.1.0",
+  "description": "Simple CLI library for node.js and io.js",
   "main": "cayman.js",
   "directories": {
     "example": "example"
