@@ -336,7 +336,8 @@ function parse_arguments( argv ) {
 	var name         = false;
 	var unrecognized = false;
 	var have_action  = false;
-	var name_format;
+	var is_global    = false;
+	var name_format, option;
 
 	var i, j;
 
@@ -344,6 +345,12 @@ function parse_arguments( argv ) {
 		// Параметр или значение? //
 		if ( argv[ i ][ 0 ] === '-' ) {
 			// Объявление параметра //
+			 
+			// Сброс буфера имени текущего параметра //
+			current     = false;
+
+			// Сброс флага наличия связанного действия //
+			have_action = false;
 			
 			// Полное или краткое название параметра? // 
 			if ( argv[ i ][ 1 ] === '-' ) {
@@ -361,6 +368,7 @@ function parse_arguments( argv ) {
 				if ( this.cmd.options[ j ][ name_format ] === name ) {
 					parsed[ this.cmd.options[ j ].access_name ] = true;
 					current = this.cmd.options[ j ].access_name;
+					option  = this.cmd.options[ j ];
 					break;
 				}
 			}
@@ -372,6 +380,7 @@ function parse_arguments( argv ) {
 					if ( this.options[ j ][ name_format ] === name ) {
 						parsed[ this.options[ j ].access_name ] = true;
 						current = this.options[ j ].access_name;
+						option  = this.options[ j ];
 						break;
 					}
 				}	
@@ -380,10 +389,10 @@ function parse_arguments( argv ) {
 			// Если параметр определен в описании программы //
 			if ( current ) {
 				// Если параметр требует выполнения некой функции //
-				if ( this.options[ j ].action ) {
+				if ( option.action ) {
 					have_action = true;
 					actions_quee.push({
-						'action' : this.options[ j ].action,
+						'action' : option.action,
 						'value'  : parsed[ current ]
 					});
 				}
@@ -410,12 +419,6 @@ function parse_arguments( argv ) {
 				console.warn( "  Unexpected value '%s' without option, check syntax.", argv[ i ] );
 				unrecognized = true;
 			}
-
-			// Сброс буфера имени текущего параметра //
-			current     = false;
-
-			// Сброс флага наличия связанного действия //
-			have_action = false;
 		}
 	}
 
